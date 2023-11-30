@@ -4,27 +4,21 @@ import org.messenger.Annotations.JsonElement;
 import org.messenger.Annotations.JsonSerializable;
 import org.messenger.Errors.Error;
 
-@JsonSerializable
 public class HttpResponse {
-    @JsonElement
+    private Object parsedObject;
     private int statusCode;
-
-    @JsonElement
     private String responseMsg;
 
-    @JsonElement
-    private String contentType;
 
-    public HttpResponse(int statusCode, String responseMsg, String contentType) {
+    public HttpResponse(Object parsedObject, int statusCode, String responseMsg, String contentType) {
+        this.parsedObject = parsedObject;
         this.statusCode = statusCode;
         this.responseMsg = responseMsg;
-        this.contentType = contentType;
     }
 
     public HttpResponse(Error error) {
         this.statusCode = error.getStatusCode();
         this.responseMsg = error.getStatusCodeMsg();
-        this.contentType = HTTP.CONTENT_TYPE.TEXT;
     }
 
     public int getStatusCode() {
@@ -35,14 +29,8 @@ public class HttpResponse {
         return responseMsg;
     }
 
-    public String getContentType() {
-        return contentType;
+    public Object getParsedObject() {
+        return parsedObject;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(statusCode).append(" ").append(responseMsg).append(" ").append(contentType);
-        return sb.toString();
-    }
 }

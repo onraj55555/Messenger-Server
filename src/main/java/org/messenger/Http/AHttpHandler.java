@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.messenger.Errors.*;
 import org.messenger.Errors.Error;
+import org.messenger.JSON.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -130,33 +131,25 @@ public abstract class AHttpHandler implements HttpHandler {
         return sb.toString().strip();
     }
 
-    public void sendResponse(int code, String contentType, String msg) throws IOException {
-        logger.debug("Sending response");
-        exchange.getResponseHeaders().set("Content-Type", contentType);
-        exchange.sendResponseHeaders(code, msg.length());
-
-        OutputStream responseBody = exchange.getResponseBody();
-        responseBody.write(msg.getBytes());
-        responseBody.close();
-        exchange.close();
-        logger.debug("Response sent");
-        HttpExchangePool.removeExchange(exchange);
-    }
-
-    public void sendResponse(int code, int length) throws IOException {
-        logger.debug("Sending response");
-        exchange.sendResponseHeaders(code, length);
-        exchange.close();
-        logger.debug("Response sent");
-        HttpExchangePool.removeExchange(exchange);
-    }
-
     public void sendResponse(Error error) throws IOException {
         sendResponse(error.getStatusCode(), "text/plain", error.getStatusCodeMsg());
     }
 
     public void sendResponse(HttpResponse response) throws IOException {
-        sendResponse(response.getStatusCode(), response.getContentType(), response.getResponseMsg());
+        String jsonObj = JsonParser.stringify(response.getParsedObject());
+        int jsonObjLength = jsonObj.length();
+        exchange.sendResponseHeaders(response.getStatusCode(), jsonObjLength);
+
+        OutputStream responseBody = exchange.getResponseBody();
+        responseBody.write(jsonObj.getBytes());
+        responseBody.close();
+        exit();
+        logger.debug("Response sent");
+    }
+
+    private void exit() {
+        exchange.close();
+        HttpExchangePool.removeExchange(exchange);
     }
 
     public String getAccept() {

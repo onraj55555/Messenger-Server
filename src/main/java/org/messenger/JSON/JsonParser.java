@@ -19,7 +19,7 @@ public class JsonParser {
     private static ObjectMapper objectMapper = new ObjectMapper();
     private static Logger logger = LogManager.getLogger(JsonParser.class);
 
-    public String stringify(Object object) throws JsonProcessingException {
+    public static String stringify(Object object) throws JsonProcessingException {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
@@ -28,7 +28,7 @@ public class JsonParser {
         }
     }
 
-    public <T> T parse(String jsonString, Class<T> type) throws IOException {
+    public static <T> T parse(String jsonString, Class<T> type) throws IOException {
         try {
             return objectMapper.readValue(jsonString, type);
         } catch (IOException e) {
