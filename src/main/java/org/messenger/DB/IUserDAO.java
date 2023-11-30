@@ -3,10 +3,10 @@ package org.messenger.DB;
 import org.messenger.User.*;
 
 public interface IUserDAO {
-    User getUser(String username);
-    User removeUser(String username);
-    User removeUser(User user);
-    User addUser(UnsafeUser user);
-    User updateUser(User user, String newUsername);
+    UnsafeUser getUser(String username);
+    UnsafeUser removeUser(String username);
+    UnsafeUser removeUser(UnsafeUser user);
+    UnsafeUser addUser(User user);
+    UnsafeUser updateUser(UnsafeUser user, String newUsername);
     // Password update, ...
 }

@@ -8,7 +8,7 @@ import org.messenger.Encryption.ServerEncryption;
 import org.messenger.Errors.HttpError;
 import org.messenger.Errors.InvalidMessageError;
 import org.messenger.Errors.ServerError;
-import org.messenger.User.User;
+import org.messenger.User.UnsafeUser;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -65,7 +65,7 @@ public class ServerLoginHandler extends AHttpHandler {
                 return new HttpResponse(new InvalidMessageError("Wrong type"));
             }
 
-            User user = null;
+            UnsafeUser user = null;
             try {
                 user = loginCommand.makeUser();
             }

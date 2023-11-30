@@ -33,7 +33,7 @@ public class TestHandler extends AHttpHandler {
             try {
                 ACommand aCommand = CommandParser.parse(body);
                 System.out.println(aCommand);
-                User temp = aCommand.makeUser();
+                UnsafeUser temp = aCommand.makeUser();
                 System.out.println(temp);
             }
             catch (Exception e) {

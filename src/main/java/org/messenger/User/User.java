@@ -1,92 +1,25 @@
 package org.messenger.User;
 
-import org.messenger.Encryption.AESClientEncryption;
+public class User extends UnsafeUser {
+    private final String username;
+    private final JWTToken jwt;
 
-import java.util.Objects;
+    public User(UnsafeUser unsafeUser) {
+        this.username = unsafeUser.getUsername();
+        jwt = new JWTToken(JWTGenerator.generate(this.username));
+    }
 
-public class User {
-    private String username;
-    private String key;
-    private String iv;
-    private Token token;
-
-    private int uid = -1;
-
-    private static int gid = 1;
-
-    public User(int uid, String username, String key, String iv) {
-        this.uid = uid;
+    public User(String username) {
         this.username = username;
-        this.key = key;
-        this.iv = iv;
+        jwt = new JWTToken(JWTGenerator.generate(this.username));
     }
 
-    protected User(String username, String key, String iv) {
-        this.username = username;
-        this.key = key;
-        this.iv = iv;
-    }
-
-    public User(String username, String key, String iv, Token token) {
-        this.username = username;
-        this.key = key;
-        this.iv = iv;
-        this.token = token;
-    }
-
-    public User(int uid, String username, String key, String iv, Token token) {
-        this.uid = uid;
-        this.username = username;
-        this.key = key;
-        this.iv = iv;
-        this.token = token;
-    }
-
-    public void setToken(Token token) {
-
-    }
-
-    public void setUid(int uid) {
-        this.uid = uid;
-    }
-
+    @Override
     public String getUsername() {
         return username;
     }
 
-    public String getKey() {
-        return key;
-    }
-
-    public String getIv() { return iv; }
-
-    public int getUid() {
-        return uid;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\nUsername: ").append(username).append("\n").append("Key: ").append(key).append("\n").append("IV: ").append(iv).append("\n").append("Token: ").append(token);
-        return sb.toString();
-    }
-
-    public Token getToken() {
-        return token;
-    }
-
-    public String getTokenEncrypted() {
-        try {
-            return AESClientEncryption.encryptAES(token.toString(), this.key, this.iv);
-        }
-        catch (Exception e) {
-            System.err.println("Failed to encrypt using AES");
-            return "";
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return username.hashCode();
+    public JWTToken getJwt() {
+        return jwt;
     }
 }

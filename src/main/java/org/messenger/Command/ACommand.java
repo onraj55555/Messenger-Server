@@ -14,12 +14,12 @@ public abstract class ACommand {
         this.params = params;
     }
 
-    public User makeUser() throws IllegalArgumentException {
+    public UnsafeUser makeUser() throws IllegalArgumentException {
         if(!type.equals("login")) {
             throw new IllegalArgumentException("No \"login\" field");
         }
         Token token = TokenGenerator.generate();
-        return new User(params.get("username"), params.get("key"), params.get("iv"), token);
+        return new UnsafeUser(params.get("username"), params.get("key"), params.get("iv"), token);
     }
 
     protected ACommand() {

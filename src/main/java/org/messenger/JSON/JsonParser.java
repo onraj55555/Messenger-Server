@@ -1,9 +1,14 @@
 package org.messenger.JSON;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.messenger.Annotations.AnnotationError;
 import org.messenger.Annotations.JsonElement;
 import org.messenger.Annotations.JsonSerializable;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -11,50 +16,23 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class JsonParser {
-    private boolean checkAnnotation(Object object) throws AnnotationError {
-        if(Objects.isNull(object)) {
-            return false;
-        }
+    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static Logger logger = LogManager.getLogger(JsonParser.class);
 
-        if(object.getClass().isAnnotationPresent(JsonSerializable.class)) {
-            return true;
+    public String stringify(Object object) throws JsonProcessingException {
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            logger.error(e);
+            throw e;
         }
-
-        throw new AnnotationError(JsonSerializable.class.getName());
     }
 
-    public String toJson(Object object) {
+    public <T> T parse(String jsonString, Class<T> type) throws IOException {
         try {
-            if(!checkAnnotation(object)) {
-                throw new NullPointerException();
-            }
-        } catch (AnnotationError ae) {
-            throw ae;
-        }
-
-        Class<?> annotatedClass = object.getClass();
-
-        HashMap<String, String> jsonMap = new HashMap<>();
-
-        for(Field field : annotatedClass.getDeclaredFields()) {
-            field.setAccessible(true);
-            if(field.isAnnotationPresent(JsonElement.class)) {
-                String key = field.getName();
-                Object value = null;
-                try {
-                    value = field.get(object);
-                } catch (IllegalAccessException ignored) {}
-
-                jsonMap.put(key, (String) value);
-            }
-        }
-
-        StringBuilder sb = new StringBuilder("{");
-        sb.append(jsonMap
-                .entrySet()
-                .stream()
-                .map(entry -> "\"" + entry.getKey() + "\":\"" + entry.getValue() + "\"")
-                .collect(Collectors.joining(",")));
-        return sb.append("}").toString();
+            return objectMapper.readValue(jsonString, type);
+        } catch (IOException e) {
+            logger.error(e);
+            throw e;        }
     }
 }
