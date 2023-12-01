@@ -1,11 +1,22 @@
 package org.messenger.Errors;
 
-public class HttpError extends Error {
-    public HttpError() {
+public class HttpError extends Exception {
+    protected int statusCode;
+    protected String statusCodeMsg;
+
+    HttpError() {
         super();
     }
 
-    public HttpError(String errorMsg) {
+    HttpError(String errorMsg) {
         super(errorMsg);
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public String getStatusCodeMsg() {
+        return statusCodeMsg;
     }
 }

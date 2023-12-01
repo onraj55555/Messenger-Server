@@ -3,7 +3,6 @@ package org.messenger.Http;
 import org.messenger.Command.ACommand;
 import org.messenger.Command.CommandParser;
 import org.messenger.Encryption.ServerEncryption;
-import org.messenger.Errors.HttpError;
 import org.messenger.User.TokenGenerator;
 
 import org.messenger.User.*;

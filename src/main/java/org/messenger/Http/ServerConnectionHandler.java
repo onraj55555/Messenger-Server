@@ -1,14 +1,17 @@
 package org.messenger.Http;
 
 import org.messenger.Encryption.ServerEncryption;
-import org.messenger.Errors.Error;
 import org.messenger.Errors.HttpError;
 import org.messenger.Errors.ServerError;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+@Deprecated
 public class ServerConnectionHandler extends AHttpHandler {
+    public ServerConnectionHandler() {
+        super(new HTTP.OK(), "GET");
+    }
     @Override
     public HttpResponse specificHandle() throws IOException {
         logger.debug("Server connection request");
@@ -26,7 +29,7 @@ public class ServerConnectionHandler extends AHttpHandler {
                     logger.debug("Server connection handled");
                     return response;
                 }
-                catch (Error error) {
+                catch (HttpError error) {
 
                     logger.error("Error whilest getting public key");
                     return new HttpResponse(error);

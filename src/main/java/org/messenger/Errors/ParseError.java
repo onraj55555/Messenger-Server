@@ -2,10 +2,11 @@ package org.messenger.Errors;
 
 import org.messenger.Http.HTTP;
 
-public class ParseError extends Error {
+@Deprecated
+public class ParseError extends HttpError {
     public ParseError(String msg) {
         super(msg);
-        statusCode = HTTP.STATUS.CONFLICT;
-        statusCodeMsg = HTTP.STATUS.CONFLICT_MSG;
+        //statusCode = HTTP.STATUS.CONFLICT;
+        //statusCodeMsg = HTTP.STATUS.CONFLICT_MSG;
     }
 }

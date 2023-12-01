@@ -1,6 +1,20 @@
 package org.messenger.Http;
 
 public class HTTP {
+    public interface STATUS {
+        int getCode();
+        String getMsg();
+    }
+
+    public interface METHOD {
+        String getMethod();
+    }
+
+    public static class GET implements METHOD {
+        public String getMethod() {
+            return "GET";
+        }
+    }
     public static class ACCEPT {
         public static final String TEXT = "text/plain";
         public static final String JSON = "application/json";
@@ -11,7 +25,17 @@ public class HTTP {
         public static final String TEXT = "text/plain";
     }
 
-    public static class STATUS {
+    public static class OK implements STATUS {
+        public int getCode() {
+            return 200;
+        }
+
+        public String getMsg() {
+            return "OK";
+        }
+    }
+
+    /*public static class STATUS {
         public static final int BAD_REQUEST = 400;
         public static final String BAD_REQUEST_MSG = "Bad Request";
 
@@ -25,5 +49,5 @@ public class HTTP {
     public static class METHOD {
         public static final String GET = "GET";
         public static final String POST = "POST";
-    }
+    }*/
 }

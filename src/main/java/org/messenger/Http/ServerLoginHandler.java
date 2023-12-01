@@ -5,7 +5,6 @@ import org.messenger.Command.CommandParseException;
 import org.messenger.Command.CommandParser;
 import org.messenger.Command.LoginCommand;
 import org.messenger.Encryption.ServerEncryption;
-import org.messenger.Errors.HttpError;
 import org.messenger.Errors.InvalidMessageError;
 import org.messenger.Errors.ServerError;
 import org.messenger.User.UnsafeUser;

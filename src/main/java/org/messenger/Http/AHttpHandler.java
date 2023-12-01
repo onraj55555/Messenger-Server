@@ -1,12 +1,10 @@
 package org.messenger.Http;
 
-import org.messenger.Debug.ServerLogger;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.messenger.Errors.*;
-import org.messenger.Errors.Error;
+import org.messenger.Errors.HttpError;
 import org.messenger.JSON.JsonParser;
 
 import java.io.BufferedReader;
@@ -20,12 +18,17 @@ public abstract class AHttpHandler implements HttpHandler {
     protected boolean exchangeHandled = false;
 
     protected HttpExchange exchange;
+    private int statusCode;
+    private String statusMsg;
 
     protected String method;
     protected String acceptMethod;
     protected String contentType;
 
-    public AHttpHandler() {
+    public AHttpHandler(HTTP.STATUS status, HTTP.METHOD method) {
+        this.statusCode = status.getCode();
+        this.statusMsg = status.getMsg();
+        this.method = method.getMethod();
         logger = LogManager.getLogger(AHttpHandler.class);
     }
 
@@ -131,7 +134,7 @@ public abstract class AHttpHandler implements HttpHandler {
         return sb.toString().strip();
     }
 
-    public void sendResponse(Error error) throws IOException {
+    public void sendResponse(HttpError error) throws IOException {
         sendResponse(error.getStatusCode(), "text/plain", error.getStatusCodeMsg());
     }
 

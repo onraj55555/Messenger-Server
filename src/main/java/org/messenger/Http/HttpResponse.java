@@ -1,8 +1,6 @@
 package org.messenger.Http;
 
-import org.messenger.Annotations.JsonElement;
-import org.messenger.Annotations.JsonSerializable;
-import org.messenger.Errors.Error;
+import org.messenger.Errors.HttpError;
 
 public class HttpResponse {
     private Object parsedObject;
@@ -16,7 +14,7 @@ public class HttpResponse {
         this.responseMsg = responseMsg;
     }
 
-    public HttpResponse(Error error) {
+    public HttpResponse(HttpError error) {
         this.statusCode = error.getStatusCode();
         this.responseMsg = error.getStatusCodeMsg();
     }

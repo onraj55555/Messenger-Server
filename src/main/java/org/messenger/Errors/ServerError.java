@@ -1,6 +1,7 @@
 package org.messenger.Errors;
 
-public class ServerError extends Error {
+@Deprecated
+public class ServerError extends HttpError {
     public ServerError() {
         super();
     }
