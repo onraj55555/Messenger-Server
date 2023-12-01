@@ -3,6 +3,7 @@ package org.messenger.User;
 import java.time.LocalDate;
 import java.util.Objects;
 
+
 public class UnsafeUser {
     // Primary key
     private String username;
