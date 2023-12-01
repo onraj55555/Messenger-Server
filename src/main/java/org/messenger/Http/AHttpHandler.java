@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.messenger.Errors.HttpError;
+import org.messenger.Errors.MethodNotAllowedException;
 import org.messenger.JSON.JsonParser;
 
 import java.io.BufferedReader;
@@ -18,35 +19,47 @@ public abstract class AHttpHandler implements HttpHandler {
     protected boolean exchangeHandled = false;
 
     protected HttpExchange exchange;
-    private int statusCode;
-    private String statusMsg;
-
-    protected String method;
+    private HTTP.STATUS status;
+    protected HTTP.METHOD method;
     protected String acceptMethod;
     protected String contentType;
 
     public AHttpHandler(HTTP.STATUS status, HTTP.METHOD method) {
-        this.statusCode = status.getCode();
-        this.statusMsg = status.getMsg();
-        this.method = method.getMethod();
+        this.status = status;
+        this.method = method;
         logger = LogManager.getLogger(AHttpHandler.class);
     }
 
-    public abstract HttpResponse specificHandle() throws IOException;
+    public abstract HttpResponse specificHandle() throws HttpError;
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        logger.debug("Started handle");
-        init(exchange);
-        logger.debug("Inited myself");
-        allowCors();
-        logger.debug("Allowed CORS");
-        HttpResponse response = specificHandle();
-        logger.debug(response.toString());
-        sendResponse(response);
-        logger.debug("Sent response");
-        quit();
-        logger.debug("Quit");
+    public void handle(HttpExchange exchange) {
+        try {
+            try {
+                logger.debug("Started handle");
+                init(exchange);
+                logger.debug("Inited myself");
+                checkMethod();
+                logger.debug("Method allowed");
+                allowCors();
+                logger.debug("Allowed CORS");
+                HttpResponse response = specificHandle();
+                logger.debug(response.toString());
+                sendResponse(response);
+                logger.debug("Sent response");
+                quit();
+                logger.debug("Quit");
+            } catch (HttpError e) {
+                logger.warn(e);
+                sendResponse(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                quit();
+            }
+        } catch (IOException e) {
+            logger.error(e);
+        }
     }
 
     public void allowCors() {
@@ -61,15 +74,14 @@ public abstract class AHttpHandler implements HttpHandler {
     public void init(HttpExchange exchange) {
         HttpExchangePool.addExchange(exchange);
         this.exchange = exchange;
-        this.method = this.exchange.getRequestMethod().toLowerCase();
-        this.acceptMethod = getAccept();
-        this.contentType = getContentType();
     }
 
     public void quit() {
+        exchange.close();
         HttpExchangePool.removeExchange(exchange);
     }
 
+    @Deprecated
     public void wrongMethod() throws IOException {;
         String response = "Bad request, expected " + method + ", got " + exchange.getRequestMethod();
         logger.warn(response);
@@ -80,6 +92,7 @@ public abstract class AHttpHandler implements HttpHandler {
         exchange.close();
     }
 
+    @Deprecated
     public void wrongContentType() throws IOException {
         String response = "Unsuppored conten type: " + contentType;
         logger.warn(response);
@@ -90,7 +103,7 @@ public abstract class AHttpHandler implements HttpHandler {
         exchange.close();
     }
 
-    public void checkCors(HttpExchange exchange) throws IOException {
+    /*public void checkCors(HttpExchange exchange) throws IOException {
         if(checkMethod("OPTIONS")) {
             exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
@@ -99,15 +112,16 @@ public abstract class AHttpHandler implements HttpHandler {
             exchange.close();
         }
         HttpExchangePool.removeExchange(exchange);
+    }*/
+
+    private String getExchangeMethod() {
+        return exchange.getRequestMethod();
     }
 
-    public boolean checkMethod(String method) throws IOException {
-        if(method.equalsIgnoreCase(this.exchange.getRequestMethod())) {
-            logger.warn("Accepted " + method + " request");
-            exchangeHandled = true;
-            return true;
+    private void checkMethod() throws HttpError {
+        if(!this.method.getMethod().equalsIgnoreCase(getExchangeMethod())) {
+            throw new MethodNotAllowedException("Expected " + method.getMethod() + ", got " + getExchangeMethod());
         }
-        return false;
     }
 
     /*public void handleRequest(HttpExchange exchange, String method) throws IOException {
@@ -135,24 +149,24 @@ public abstract class AHttpHandler implements HttpHandler {
     }
 
     public void sendResponse(HttpError error) throws IOException {
-        sendResponse(error.getStatusCode(), "text/plain", error.getStatusCodeMsg());
+        exchange.sendResponseHeaders(error.getStatusCode(), error.getLocalizedMessage().length());
+        exchange.getResponseHeaders().set("Content-Type", HTTP.CONTENT_TYPE.TEXT);
+
+        OutputStream responseBody = exchange.getResponseBody();
+        responseBody.write(error.getLocalizedMessage().getBytes());
+        responseBody.close();
+        logger.debug("Response sent");
     }
 
-    public void sendResponse(HttpResponse response) throws IOException {
-        String jsonObj = JsonParser.stringify(response.getParsedObject());
+    public void sendResponse(Object object) throws IOException {
+        String jsonObj = JsonParser.stringify(object);
         int jsonObjLength = jsonObj.length();
-        exchange.sendResponseHeaders(response.getStatusCode(), jsonObjLength);
+        exchange.sendResponseHeaders(status.getCode(), jsonObjLength);
 
         OutputStream responseBody = exchange.getResponseBody();
         responseBody.write(jsonObj.getBytes());
         responseBody.close();
-        exit();
         logger.debug("Response sent");
-    }
-
-    private void exit() {
-        exchange.close();
-        HttpExchangePool.removeExchange(exchange);
     }
 
     public String getAccept() {

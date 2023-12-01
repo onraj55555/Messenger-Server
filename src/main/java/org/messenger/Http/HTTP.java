@@ -35,6 +35,36 @@ public class HTTP {
         }
     }
 
+    public static class INTERNAL_SERVER_ERROR implements STATUS {
+        public int getCode() {
+            return 500;
+        }
+
+        public String getMsg() {
+            return "Internam server error";
+        }
+    }
+
+    public static class NOT_FOUND implements STATUS {
+        public int getCode() {
+            return 404;
+        }
+
+        public String getMsg() {
+            return "Not found";
+        }
+    }
+
+    public static class METHOD_NOT_ALLOWED implements STATUS {
+        public int getCode() {
+            return 405;
+        }
+
+        public String getMsg() {
+            return "Method not allowed";
+        }
+    }
+
     /*public static class STATUS {
         public static final int BAD_REQUEST = 400;
         public static final String BAD_REQUEST_MSG = "Bad Request";
